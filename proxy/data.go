@@ -22,6 +22,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+
 )
 
 // URLError reports a malformed URL error.
@@ -126,15 +127,20 @@ func ParseOptions(str string) *Options {
 type Request struct {
 	URL     *url.URL // URL of the image to proxy
 	Options *Options // Image transformation to perform
+	StorageAddr string
 }
 
 // NewRequest parses an http.Request into an image request.
-func NewRequest(r *http.Request) (*Request, error) {
+func NewRequest(r *http.Request, storagea string) (*Request, error) {
 	var err error
 	req := new(Request)
 
 	path := r.URL.Path[1:] // strip leading slash
+
+
 	req.URL, err = url.Parse(path)
+
+
 	if err != nil || !req.URL.IsAbs() {
 		// first segment is likely options
 		parts := strings.SplitN(path, "/", 2)
@@ -142,7 +148,9 @@ func NewRequest(r *http.Request) (*Request, error) {
 			return nil, URLError{"too few path segments", r.URL}
 		}
 
-		req.URL, err = url.Parse(parts[1])
+		u := storagea + parts[1]
+
+		req.URL, err = url.Parse(u)
 		if err != nil {
 			return nil, URLError{fmt.Sprintf("unable to parse remote URL: %v", err), r.URL}
 		}
@@ -150,13 +158,17 @@ func NewRequest(r *http.Request) (*Request, error) {
 		req.Options = ParseOptions(parts[0])
 	}
 
+
 	if !req.URL.IsAbs() {
 		return nil, URLError{"must provide absolute remote URL", r.URL}
 	}
 
+
 	if req.URL.Scheme != "http" && req.URL.Scheme != "https" {
 		return nil, URLError{"remote URL must have http or https URL", r.URL}
 	}
+
+
 
 	// query string is always part of the remote URL
 	req.URL.RawQuery = r.URL.RawQuery

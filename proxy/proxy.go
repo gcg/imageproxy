@@ -39,6 +39,8 @@ type Proxy struct {
 	// Whitelist specifies a list of remote hosts that images can be proxied from.  An empty list means all hosts are allowed.
 	Whitelist []string
 
+	StorageAddr string
+
 	MaxWidth  int
 	MaxHeight int
 }
@@ -68,12 +70,17 @@ func NewProxy(transport http.RoundTripper, cache Cache) *Proxy {
 
 // ServeHTTP handles image requests.
 func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	req, err := NewRequest(r)
+
+
+	req, err := NewRequest(r, p.StorageAddr)
+
 	if err != nil {
 		glog.Errorf("invalid request URL: %v", err)
 		http.Error(w, fmt.Sprintf("invalid request URL: %v", err), http.StatusBadRequest)
 		return
 	}
+	req.StorageAddr = p.StorageAddr
+	u := req.URL.String()
 
 	if p.MaxWidth > 0 && int(req.Options.Width) > p.MaxWidth {
 		req.Options.Width = float64(p.MaxWidth)
@@ -82,13 +89,15 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		req.Options.Height = float64(p.MaxHeight)
 	}
 
+	/*
 	if !p.allowed(req.URL) {
 		glog.Errorf("remote URL is not for an allowed host: %v", req.URL)
 		http.Error(w, fmt.Sprintf("remote URL is not for an allowed host: %v", req.URL), http.StatusBadRequest)
 		return
 	}
+	*/
 
-	u := req.URL.String()
+	//u := req.URL.String()
 	if req.Options != nil && !reflect.DeepEqual(req.Options, emptyOptions) {
 		u += "#" + req.Options.String()
 	}
