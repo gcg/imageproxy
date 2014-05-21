@@ -102,7 +102,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		u += "#" + req.Options.String()
 	}
 
-	glog.Infof('URL: ', u)
+	glog.Infof("URL: %v", u)
 
 	resp, err := p.Client.Get(u)
 	if err != nil {
