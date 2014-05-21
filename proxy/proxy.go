@@ -103,7 +103,11 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rasp, er := p.Client.Get(u)
-	fmt.Printf("%s", er)
+	if er != nil {
+		fmt.Printf("%s", er)
+		return
+	}
+	fmt.Printf("%s", resp.StatusCode)
 	return
 
 
