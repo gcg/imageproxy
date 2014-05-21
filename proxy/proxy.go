@@ -102,8 +102,8 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		u += "#" + req.Options.String()
 	}
 
-	resp, err := p.Client.Get(u)
-	fmt.Printf("%s", err)
+	rasp, er := p.Client.Get(u)
+	fmt.Printf("%s", er)
 	return
 
 
