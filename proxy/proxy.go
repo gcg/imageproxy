@@ -107,7 +107,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("%s", er)
 		return
 	}
-	fmt.Printf("%s", resp.StatusCode)
+	fmt.Printf("%s", rasp.StatusCode)
 	return
 
 
