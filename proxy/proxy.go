@@ -71,7 +71,6 @@ func NewProxy(transport http.RoundTripper, cache Cache) *Proxy {
 // ServeHTTP handles image requests.
 func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-
 	req, err := NewRequest(r, p.StorageAddr)
 
 	if err != nil {
@@ -90,11 +89,11 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	/*
-	if !p.allowed(req.URL) {
-		glog.Errorf("remote URL is not for an allowed host: %v", req.URL)
-		http.Error(w, fmt.Sprintf("remote URL is not for an allowed host: %v", req.URL), http.StatusBadRequest)
-		return
-	}
+		if !p.allowed(req.URL) {
+			glog.Errorf("remote URL is not for an allowed host: %v", req.URL)
+			http.Error(w, fmt.Sprintf("remote URL is not for an allowed host: %v", req.URL), http.StatusBadRequest)
+			return
+		}
 	*/
 
 	//u := req.URL.String()
@@ -114,8 +113,10 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	ayearfromnow, _ := time.Now().AddDate(1, 0, 0).MarshalText()
 	w.Header().Add("Last-Modified", resp.Header.Get("Last-Modified"))
-	w.Header().Add("Expires", resp.Header.Get("Expires"))
+	w.Header().Add("Expires", string(ayearfromnow))
+	w.Header().Add("cache-control", "public, max-age=604800")
 	w.Header().Add("Etag", resp.Header.Get("Etag"))
 
 	if is304 := check304(w, r, resp); is304 {
